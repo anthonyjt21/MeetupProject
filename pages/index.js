@@ -20,12 +20,15 @@ const DUMMY_MEETUPS = [
 function HomePage(props) {
   return <MeetupList meetups={props.meetups} />;
 }
+
+//fetch data from an API
 export async function getStaticProps() {
-  //fetch data from an API
+  console.log('pre-rendering data ');
   return {
     props: {
       meetups: DUMMY_MEETUPS,
     },
+    revalidate: 10,
   };
 }
 export default HomePage;
