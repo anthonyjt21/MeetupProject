@@ -5,8 +5,20 @@ async function handler(req, res) {
   if ((req.method = 'POST')) {
     const data = req.body;
     // const { title, image, address, description } = data;
+    const apiUser = process.env.NEXT_PUBLIC_USERNAME;
+    const apiKey = process.env.NEXT_PUBLIC_KEY;
+    const clusterName = process.env.NEXT_PUBLIC_NAMESERVICE;
+    const dbName = process.env.NEXT_PUBLIC_DB;
     const urlconnect =
-      'mongodb+srv://anthony:C3vOQqoV0P8Rf44E@cluster0.xotg4ou.mongodb.net/meetups?retryWrites=true&w=majority&appName=Cluster0';
+      'mongodb+srv://' +
+      apiUser +
+      ':' +
+      apiKey +
+      '@' +
+      clusterName +
+      '/' +
+      dbName +
+      '?retryWrites=true&w=majority&appName=Cluster0';
     const client = await MongoClient.connect(urlconnect);
     const db = client.db();
     const meetupsCollection = db.collection('meetups');

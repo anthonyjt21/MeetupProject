@@ -1,32 +1,54 @@
+import { MongoClient } from 'mongodb';
 import MeetupList from '../components/meetups/MeetupList';
-const DUMMY_MEETUPS = [
-  {
-    id: 'm1',
-    title: 'A First Meetup',
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/1280px-Stadtbild_M%C3%BCnchen.jpg',
-    address: 'Some address 5, 12345 Some City',
-    description: 'This is a first meetup!',
-  },
-  {
-    id: 'm2',
-    title: 'A Second Meetup',
-    image:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Stadtbild_M%C3%BCnchen.jpg/1280px-Stadtbild_M%C3%BCnchen.jpg',
-    address: 'Some address 10, 12345 Some City',
-    description: 'This is a second meetup!',
-  },
-];
+import { Fragment } from 'react';
+import Head from 'next/head';
 function HomePage(props) {
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>React Meetups</title>
+        <meta
+          name="description"
+          content="Browse a huge list of highly active React meetups!"
+        ></meta>
+      </Head>
+      <MeetupList meetups={props.meetups} />
+    </Fragment>
+  );
 }
 
 //fetch data from an API
 export async function getStaticProps() {
   console.log('pre-rendering data ');
+  const apiUser = process.env.NEXT_PUBLIC_USERNAME;
+  const apiKey = process.env.NEXT_PUBLIC_KEY;
+  const clusterName = process.env.NEXT_PUBLIC_NAMESERVICE;
+  const dbName = process.env.NEXT_PUBLIC_DB;
+  const urlconnect =
+    'mongodb+srv://' +
+    apiUser +
+    ':' +
+    apiKey +
+    '@' +
+    clusterName +
+    '/' +
+    dbName +
+    '?retryWrites=true&w=majority&appName=Cluster0';
+  const client = await MongoClient.connect(urlconnect);
+  const db = client.db();
+  const meetupsCollection = db.collection('meetups');
+  const meetups = await meetupsCollection.find().toArray();
+  client.close();
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: meetups.map((meetup) => {
+        return {
+          title: meetup.title,
+          address: meetup.address,
+          image: meetup.image,
+          id: meetup._id.toString(),
+        };
+      }),
     },
     revalidate: 10,
   };
